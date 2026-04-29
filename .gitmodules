@@ -1,0 +1,12 @@
+[submodule "submodules/CMSIS_6"]
+	path = submodules/CMSIS_6
+	url = https://github.com/ARM-software/CMSIS_6.git
+[submodule "submodules/STM32_HAL/stm32u5xx-hal-driver"]
+	path = submodules/STM32_HAL/stm32u5xx-hal-driver
+	url = https://github.com/STMicroelectronics/stm32u5xx-hal-driver.git
+[submodule "submodules/CMSIS/cmsis-device-u5"]
+	path = submodules/CMSIS/cmsis-device-u5
+	url = https://github.com/STMicroelectronics/cmsis-device-u5.git
+[submodule "submodules/CMSIS/cmsis-core"]
+	path = submodules/CMSIS/cmsis-core
+	url = https://github.com/STMicroelectronics/cmsis-core.git

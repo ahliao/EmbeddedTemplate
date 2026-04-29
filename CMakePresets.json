@@ -1,0 +1,39 @@
+{
+  "version": 6,
+  "configurePresets": [
+    {
+      "name": "nucleo_u5a5",
+      "displayName": "Nucleo U5A5",
+      "description": "Configure the STM32U5A5 Nucleo target with Ninja.",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/nucleo_u5a5",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "EMBEDDED_TARGET": "nucleo_u5a5"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "nucleo_u5a5",
+      "displayName": "Build Nucleo U5A5",
+      "configurePreset": "nucleo_u5a5"
+    }
+  ],
+  "workflowPresets": [
+    {
+      "name": "nucleo_u5a5",
+      "displayName": "Configure and build Nucleo U5A5",
+      "steps": [
+        {
+          "type": "configure",
+          "name": "nucleo_u5a5"
+        },
+        {
+          "type": "build",
+          "name": "nucleo_u5a5"
+        }
+      ]
+    }
+  ]
+}
