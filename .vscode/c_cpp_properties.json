@@ -1,0 +1,17 @@
+{
+    "configurations": [
+        {
+            "name": "ARM-GCC",
+            "includePath": [
+                "${workspaceFolder}/**"
+            ],
+            "defines": [],
+            "compilerPath": "/opt/arm-gnu/bin/arm-none-eabi-g++",
+            "cStandard": "c23",
+            "cppStandard": "c++23",
+            "intelliSenseMode": "gcc-arm",
+            "compileCommands": "${workspaceFolder}/build/nucleo_u5a5/compile_commands.json"
+        }
+    ],
+    "version": 4
+}

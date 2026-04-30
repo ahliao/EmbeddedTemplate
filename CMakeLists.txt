@@ -6,6 +6,8 @@ endif()
 
 project(embedded_template LANGUAGES C CXX ASM)
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 set(EMBEDDED_TARGET "nucleo_u5a5" CACHE STRING "Embedded target to build")
 set(EMBEDDED_TARGET_FILE "${CMAKE_SOURCE_DIR}/targets/${EMBEDDED_TARGET}/target.cmake")
 
@@ -43,6 +45,7 @@ set(CMAKE_ASM_FLAGS "${CMAKE_ASM_FLAGS} ${MCU_BASE_FLAGS}")
 
 if(MCU_FAMILY STREQUAL "stm32u5")
 	add_subdirectory("${CMAKE_SOURCE_DIR}/submodules/STM32_HAL" "${CMAKE_BINARY_DIR}/stm32_hal")
+	add_subdirectory("${CMAKE_SOURCE_DIR}/src/hal" "${CMAKE_BINARY_DIR}/hal")
 endif()
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
@@ -58,16 +61,8 @@ if(MCU_LINKER_SCRIPT)
 endif()
 
 # ====== Project sources ======
-# Put your C/C++ sources under src/ by default
-file(GLOB_RECURSE APP_SRCS
-	"${CMAKE_SOURCE_DIR}/src/*.c"
-	"${CMAKE_SOURCE_DIR}/src/*.s"
-	"${CMAKE_SOURCE_DIR}/src/*.S"
-	"${CMAKE_SOURCE_DIR}/src/*.cpp"
-    "${CMAKE_SOURCE_DIR}/src/apps/*.c"
-)
-
-list(APPEND APP_SRCS
+set(APP_SRCS
+	"${CMAKE_SOURCE_DIR}/src/apps/main.c"
 	"${MCU_STARTUP_FILE}"
 	"${MCU_SYSTEM_FILE}"
 )
@@ -86,7 +81,7 @@ target_link_options(${PROJECT_NAME}.elf PRIVATE ${LINKER_FLAGS})
 target_compile_definitions(${MCU_HAL_TARGET} PUBLIC ${MCU_DEFINES})
 target_include_directories(${MCU_HAL_TARGET} PUBLIC ${MCU_INCLUDE_DIRS})
 
-target_link_libraries(${PROJECT_NAME}.elf PRIVATE ${MCU_HAL_TARGET} m)
+target_link_libraries(${PROJECT_NAME}.elf PRIVATE ${MCU_HAL_TARGET} hal_if_stm32u5 m)
 
 set_target_properties(${PROJECT_NAME}.elf PROPERTIES
 	OUTPUT_NAME ${PROJECT_NAME}

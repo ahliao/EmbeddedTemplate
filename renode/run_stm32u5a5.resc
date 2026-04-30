@@ -1,0 +1,10 @@
+mach create "stm32u5a5"
+
+machine LoadPlatformDescription @renode/platforms/stm32u5a5_minimal.repl
+
+sysbus LoadELF @build/nucleo_u5a5/build/embedded_template
+
+logLevel -1 gpioPortA.pa0Led
+logLevel 3
+
+start
