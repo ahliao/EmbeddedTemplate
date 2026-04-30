@@ -8,7 +8,7 @@ sram: Memory.MappedMemory @ sysbus 0x20000000
 
 nvic: IRQControllers.NVIC @ sysbus 0xE000E000
     priorityMask: 0xF0
-    systickFrequency: 4000000
+    systickFrequency: 16000000
     IRQ -> cpu@0
 
 cpu: CPU.CortexM @ sysbus
@@ -50,11 +50,11 @@ sysbus:
     init:
         ApplySVD @renode/STM32U5A5.svd
         // Hard set all oscillator RDY bits
-        Tag <0x40021000 4> "RCC_CR" 0x2A020402
+        Tag <0x46020C00 4> "RCC_CR" 0x2A020402
 
         // Hard set HSI16 oscillator as system clock
-        Tag <0x4002101C 4> "RCC_CFGR1" 0x5
-        Tag <0x40021020 4> "RCC_CFGR2" 0x00006000
+        Tag <0x46020C1C 4> "RCC_CFGR1" 0x00000005
+        Tag <0x46020C20 4> "RCC_CFGR2" 0x00006000
 
         Tag <0x40007000 0x400> "PWR"
         Tag <0xE0001000 0xffb> "DWT"
