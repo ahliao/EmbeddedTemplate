@@ -7,4 +7,10 @@ sysbus LoadELF @build/nucleo_u5a5/build/embedded_template
 logLevel -1 gpioPortA.pa0Led
 logLevel 3
 
+logLevel -1 sysbus.usart1
+
+emulation CreateUartPtyTerminal "term" "/tmp/uart"
+
+connector Connect sysbus.usart1 term
+
 start

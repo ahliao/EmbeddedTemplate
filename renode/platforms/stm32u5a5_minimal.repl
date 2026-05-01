@@ -1,10 +1,20 @@
 // renode/platforms/stm32u5a5_minimal.repl
 
+// FLASH 4MB
 flash: Memory.MappedMemory @ sysbus 0x08000000
     size: 0x400000
 
-sram: Memory.MappedMemory @ sysbus 0x20000000
-    size: 0x280000
+// Nonsecure SRAM
+sram1: Memory.MappedMemory @ sysbus 0x20000000
+    size: 0xC0000
+sram2: Memory.MappedMemory @ sysbus 0x200C0000
+    size: 0x10000
+sram3: Memory.MappedMemory @ sysbus 0x200D0000
+    size: 0xD0000
+sram4: Memory.MappedMemory @ sysbus 0x28000000
+    size: 0x4000
+sram5: Memory.MappedMemory @ sysbus 0x201A0000
+    size: 0xD0000
 
 nvic: IRQControllers.NVIC @ sysbus 0xE000E000
     priorityMask: 0xF0
@@ -15,12 +25,10 @@ cpu: CPU.CortexM @ sysbus
     cpuType: "cortex-m33"
     nvic: nvic
 
-// Start with the UART your firmware actually uses.
-// Address and IRQ must match the STM32U5A5 reference manual / your CubeMX config.
-// This is only a placeholder pattern.
+
 usart1: UART.STM32F7_USART @ sysbus 0x40013800
-    frequency: 16000000
-    IRQ -> nvic@46
+    frequency: 200000000
+    IRQ -> nvic@61
 
 gpioPortA: GPIOPort.STM32_GPIOPort @ sysbus <0x42020000, +0x400>
     modeResetValue: 0xABFFFFFF

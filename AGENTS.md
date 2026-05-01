@@ -11,10 +11,11 @@
 - Firmware target is `embedded_template.elf`; CMake writes outputs under the preset build dir at `build/nucleo_u5a5/build/`.
 - `CMakeLists.txt` selects a board via `EMBEDDED_TARGET`, then includes `targets/${EMBEDDED_TARGET}/target.cmake` for CPU flags, defines, linker script, startup file, system file, and board includes.
 - The only configured target today is `nucleo_u5a5`, an STM32U5A5/Cortex-M33 target using `targets/nucleo_u5a5/STM32U5A5xx_FLASH.ld` and HAL config in `targets/nucleo_u5a5/stm32u5xx_hal_conf.h`.
-- Application sources are globbed recursively from `src/` for C, C++, and assembly; the current entry point is `src/apps/main.c`.
-- STM32U5 HAL is built as the `hal_stm32_u5` object library from `submodules/STM32_HAL`; CMSIS include/startup/system files come from `submodules/CMSIS/cmsis-core` and `submodules/CMSIS/cmsis-device-u5`.
+- `APP_SRCS` is explicit in `CMakeLists.txt`: `src/apps/main.c`, the target startup file, and the target system file; new app sources are not auto-globbed.
+- STM32U5 HAL is built as `hal_stm32_u5` from `submodules/STM32_HAL`; `src/hal/common` is the target-independent interface and `src/hal/stm32u5` is linked as `hal_if_stm32u5`.
+- CMSIS include/startup/system files come from `submodules/CMSIS/cmsis-core` and `submodules/CMSIS/cmsis-device-u5`.
 
 ## Gotchas
-- README layout notes mention `submodules/CMSIS_6`, but the active CMake build uses `submodules/CMSIS/...`; trust the CMake files over README prose if they differ.
+- README layout/build notes are stale in places (`submodules/CMSIS_6`, generic `build/`); trust `CMakeLists.txt`, `CMakePresets.json`, and `targets/*/target.cmake` over prose if they differ.
 - `MCU_FPU` is `auto` for `nucleo_u5a5`, so CMake intentionally skips `-mfpu` and `-mfloat-abi` flags even though `MCU_FLOAT_ABI` is set.
 - If adding a new board, create `targets/<name>/target.cmake` and set `EMBEDDED_TARGET=<name>`; unsupported `MCU_FAMILY` values fail at configure time.
