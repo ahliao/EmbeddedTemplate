@@ -122,6 +122,7 @@ hal_if_status_t hal_uart_stm32u5_bind(hal_uart_stm32u5_t *context,
     memset(context, 0, sizeof(*context));
     context->instance = instance;
     context->hal_handle = hal_handle;
+    memcpy(&context->hal_handle, hal_handle, sizeof(*hal_handle));
 
     return HAL_IF_OK;
 }
