@@ -4,14 +4,14 @@ machine LoadPlatformDescription @renode/platforms/stm32u5a5_minimal.repl
 
 sysbus LoadELF @build/nucleo_u5a5_uart_echo_freertos_app/build/embedded_template
 
-logLevel -1 gpioPortA.pa0Led
 logLevel 3
 
 logLevel -1 sysbus.usart1
 logLevel -1 sysbus.gpdma1
 
-emulation CreateUartPtyTerminal "term" "/tmp/uart"
+emulation CreateUartPtyTerminal "term" "/tmp/uart" true
 
 connector Connect sysbus.usart1 term
 
-start
+machine StartGdbServer 3333
+echo "Renode GDB server ready on port 3333"

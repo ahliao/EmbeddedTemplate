@@ -9,6 +9,7 @@ add_subdirectory("${CMAKE_SOURCE_DIR}/submodules/FreeRTOS-Kernel" "${CMAKE_BINAR
 
 set(APP_SRCS
 	"${APP_DIR}/main.c"
+	"${APP_DIR}/hal_freertos_time.c"
 )
 
 set(APP_INCLUDE_DIRS

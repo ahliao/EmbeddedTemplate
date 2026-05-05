@@ -1,0 +1,58 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "CMake: build nucleo_u5a5",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "--workflow",
+                "--preset",
+                "nucleo_u5a5"
+            ],
+            "group": "build",
+            "problemMatcher": []
+        },
+        {
+            "label": "Renode: debug stm32u5a5",
+            "type": "shell",
+            "command": "${workspaceFolder}/../renode/renode",
+            "args": [
+                "renode/debug_stm32u5a5.resc"
+            ],
+            "isBackground": true,
+            "problemMatcher": {
+                "owner": "renode",
+                "pattern": {
+                    "regexp": ".^"
+                },
+                "background": {
+                    "activeOnStart": true,
+                    "beginsPattern": ".*Loaded monitor commands.*",
+                    "endsPattern": ".*Renode GDB server ready on port 3333.*"
+                }
+            },
+            "dependsOn": [
+                "CMake: build nucleo_u5a5"
+            ],
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated"
+            }
+        },
+        {
+            "label": "Renode: close",
+            "type": "shell",
+            "command": "echo ${input:terminateRenode}",
+            "problemMatcher": []
+        }
+    ],
+    "inputs": [
+        {
+            "id": "terminateRenode",
+            "type": "command",
+            "command": "workbench.action.tasks.terminate",
+            "args": "terminateAll"
+        }
+    ]
+}

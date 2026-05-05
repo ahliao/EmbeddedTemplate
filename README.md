@@ -76,6 +76,27 @@ When `arm-none-eabi-objcopy` is available, the build also generates:
 
 When `arm-none-eabi-size` is available, the final ELF size is printed after linking.
 
+## Debug With Renode And VSCode
+
+The repository includes a VSCode launch configuration for debugging the non-RTOS `nucleo_u5a5` UART echo app in Renode.
+
+Requirements:
+
+- Custom Renode checkout available at `../renode`
+- GNU Arm tools under `/opt/arm-gnu/bin`, including `arm-none-eabi-gdb`
+- VSCode Cortex-Debug extension
+
+Start debugging from VSCode with the `Renode: Debug Nucleo U5A5 UART Echo` launch configuration. The launch configuration runs these steps:
+
+- Builds the firmware with `cmake --workflow --preset nucleo_u5a5`
+- Starts Renode with `${workspaceFolder}/../renode/renode renode/debug_stm32u5a5.resc`
+- Loads `build/nucleo_u5a5/build/embedded_template`
+- Starts a Renode GDB server on `localhost:3333`
+- Attaches `/opt/arm-gnu/bin/arm-none-eabi-gdb`
+- Terminates the Renode task when the debug session ends
+
+Renode creates the UART PTY at `/tmp/uart`.
+
 ## Customizing For A Board
 
 Before this template can link for real hardware, add or configure the board-specific files expected by `CMakeLists.txt`:

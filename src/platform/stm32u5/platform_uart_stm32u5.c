@@ -114,10 +114,10 @@ static platform_status_t init_console_dma(platform_uart_t *uart)
     __HAL_LINKDMA(&uart->handle, hdmatx, uart->tx_dma);
     __HAL_LINKDMA(&uart->handle, hdmarx, uart->rx_dma);
 
-    HAL_NVIC_SetPriority(GPDMA1_Channel0_IRQn, 5, 0);
+    HAL_NVIC_SetPriority(GPDMA1_Channel0_IRQn, 6, 0);
     HAL_NVIC_EnableIRQ(GPDMA1_Channel0_IRQn);
 
-    HAL_NVIC_SetPriority(GPDMA1_Channel1_IRQn, 5, 0);
+    HAL_NVIC_SetPriority(GPDMA1_Channel1_IRQn, 6, 0);
     HAL_NVIC_EnableIRQ(GPDMA1_Channel1_IRQn);
 
     return PLATFORM_OK;
@@ -314,7 +314,7 @@ void HAL_UART_MspInit(UART_HandleTypeDef *uart_handle)
 
         HAL_GPIO_Init(GPIOA, &gpio);
 
-        HAL_NVIC_SetPriority(USART1_IRQn, 5, 0);
+        HAL_NVIC_SetPriority(USART1_IRQn, 6, 0);
         HAL_NVIC_EnableIRQ(USART1_IRQn);
     }
 }

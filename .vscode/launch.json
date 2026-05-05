@@ -1,0 +1,19 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Renode: Debug Nucleo U5A5 UART Echo",
+            "type": "cortex-debug",
+            "request": "attach",
+            "servertype": "external",
+            "cwd": "${workspaceFolder}",
+            "executable": "${workspaceFolder}/build/nucleo_u5a5_uart_echo_freertos_app/build/embedded_template",
+            "gdbPath": "/opt/arm-gnu/bin/arm-none-eabi-gdb",
+            "gdbTarget": "localhost:3333",
+            "svdFile": "${workspaceFolder}/renode/STM32U5A5.svd",
+            "preLaunchTask": "Renode: debug stm32u5a5",
+            "postDebugTask": "Renode: close",
+            "runToEntryPoint": "main"
+        }
+    ]
+}

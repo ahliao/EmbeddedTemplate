@@ -11,6 +11,7 @@ static volatile uint8_t uartError = 0;
 static TaskHandle_t echoTaskHandle;
 
 void Error_Handler(void);
+void hal_freertos_timebase_scheduler_started(void);
 
 static void EchoTask(void *argument);
 static void StartReceiveAsync(void);
@@ -27,6 +28,7 @@ int main(void)
         Error_Handler();
     }
 
+    hal_freertos_timebase_scheduler_started();
     vTaskStartScheduler();
 
     Error_Handler();
@@ -44,9 +46,21 @@ static void EchoTask(void *argument)
     }
 
     StartReceiveAsync();
-
+    uint8_t test[] = "TEST";
     while (1) {
+        // platform_uart_transmit(console_uart, test, 4, PLATFORM_WAIT_FOREVER);
         ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
+        // ulTaskNotifyTake(pdTRUE, 1000);
+
+        platform_uart_transmit(console_uart, test, 4, PLATFORM_WAIT_FOREVER);
+        // vTaskDelay(1000);
+
+        // if (platform_uart_transmit(console_uart, &rxByte, 1, PLATFORM_WAIT_FOREVER) != PLATFORM_OK) {
+        //     Error_Handler();
+        // }
+
+        // txDone++;
+        StartReceiveAsync();
     }
 }
 
@@ -94,18 +108,18 @@ static void OnConsoleTxComplete(platform_uart_t *uart, void *user_context)
     (void)user_context;
 
     txDone++;
-    StartReceiveAsync();
 }
 
 static void OnConsoleRxComplete(platform_uart_t *uart, void *user_context, size_t bytes_received)
 {
+    (void)uart;
     (void)user_context;
 
     BaseType_t higher_priority_task_woken = pdFALSE;
 
     rxDone++;
 
-    if ((bytes_received != 1U) || (platform_uart_transmit_async(uart, &rxByte, 1) != PLATFORM_OK)) {
+    if (bytes_received != 1U) {
         Error_Handler();
     }
 
