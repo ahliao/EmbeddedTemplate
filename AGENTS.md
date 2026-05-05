@@ -12,7 +12,7 @@
 - `CMakeLists.txt` selects a board via `EMBEDDED_TARGET`, then includes `targets/${EMBEDDED_TARGET}/target.cmake` for CPU flags, defines, linker script, startup file, system file, and board includes.
 - The only configured target today is `nucleo_u5a5`, an STM32U5A5/Cortex-M33 target using `targets/nucleo_u5a5/STM32U5A5xx_FLASH.ld` and HAL config in `targets/nucleo_u5a5/stm32u5xx_hal_conf.h`.
 - `APP_SRCS` is explicit in `CMakeLists.txt`: `src/apps/main.c`, the target startup file, and the target system file; new app sources are not auto-globbed.
-- STM32U5 HAL is built as `hal_stm32_u5` from `submodules/STM32_HAL`; `src/hal/common` is the target-independent interface and `src/hal/stm32u5` is linked as `hal_if_stm32u5`.
+- STM32U5 HAL is built as `hal_stm32_u5` from `submodules/STM32_HAL`; `src/platform/common` is the target-independent interface and `src/platform/stm32u5` is linked as `platform_stm32u5`.
 - CMSIS include/startup/system files come from `submodules/CMSIS/cmsis-core` and `submodules/CMSIS/cmsis-device-u5`.
 
 ## Gotchas

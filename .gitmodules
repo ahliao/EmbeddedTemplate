@@ -10,3 +10,6 @@
 [submodule "submodules/CMSIS/cmsis-core"]
 	path = submodules/CMSIS/cmsis-core
 	url = https://github.com/STMicroelectronics/cmsis-core.git
+[submodule "submodules/FreeRTOS-Kernel"]
+	path = submodules/FreeRTOS-Kernel
+	url = https://github.com/FreeRTOS/FreeRTOS-Kernel.git

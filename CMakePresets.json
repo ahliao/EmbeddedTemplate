@@ -9,7 +9,32 @@
       "binaryDir": "${sourceDir}/build/nucleo_u5a5",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug",
-        "EMBEDDED_TARGET": "nucleo_u5a5"
+        "EMBEDDED_TARGET": "nucleo_u5a5",
+        "EMBEDDED_APP": "uart_echo_app"
+      }
+    },
+    {
+      "name": "nucleo_u5a5_uart_echo_app",
+      "displayName": "Nucleo U5A5 UART Echo App",
+      "description": "Configure the STM32U5A5 Nucleo target with the bare-metal UART echo app.",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/nucleo_u5a5_uart_echo_app",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "EMBEDDED_TARGET": "nucleo_u5a5",
+        "EMBEDDED_APP": "uart_echo_app"
+      }
+    },
+    {
+      "name": "nucleo_u5a5_uart_echo_freertos_app",
+      "displayName": "Nucleo U5A5 UART Echo FreeRTOS App",
+      "description": "Configure the STM32U5A5 Nucleo target with the FreeRTOS UART echo app.",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/nucleo_u5a5_uart_echo_freertos_app",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "EMBEDDED_TARGET": "nucleo_u5a5",
+        "EMBEDDED_APP": "uart_echo_freertos_app"
       }
     }
   ],
@@ -18,6 +43,16 @@
       "name": "nucleo_u5a5",
       "displayName": "Build Nucleo U5A5",
       "configurePreset": "nucleo_u5a5"
+    },
+    {
+      "name": "nucleo_u5a5_uart_echo_app",
+      "displayName": "Build Nucleo U5A5 UART Echo App",
+      "configurePreset": "nucleo_u5a5_uart_echo_app"
+    },
+    {
+      "name": "nucleo_u5a5_uart_echo_freertos_app",
+      "displayName": "Build Nucleo U5A5 UART Echo FreeRTOS App",
+      "configurePreset": "nucleo_u5a5_uart_echo_freertos_app"
     }
   ],
   "workflowPresets": [
@@ -32,6 +67,34 @@
         {
           "type": "build",
           "name": "nucleo_u5a5"
+        }
+      ]
+    },
+    {
+      "name": "nucleo_u5a5_uart_echo_app",
+      "displayName": "Configure and build Nucleo U5A5 UART Echo App",
+      "steps": [
+        {
+          "type": "configure",
+          "name": "nucleo_u5a5_uart_echo_app"
+        },
+        {
+          "type": "build",
+          "name": "nucleo_u5a5_uart_echo_app"
+        }
+      ]
+    },
+    {
+      "name": "nucleo_u5a5_uart_echo_freertos_app",
+      "displayName": "Configure and build Nucleo U5A5 UART Echo FreeRTOS App",
+      "steps": [
+        {
+          "type": "configure",
+          "name": "nucleo_u5a5_uart_echo_freertos_app"
+        },
+        {
+          "type": "build",
+          "name": "nucleo_u5a5_uart_echo_freertos_app"
         }
       ]
     }

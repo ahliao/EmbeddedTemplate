@@ -9,6 +9,7 @@ project(embedded_template LANGUAGES C CXX ASM)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 set(EMBEDDED_TARGET "nucleo_u5a5" CACHE STRING "Embedded target to build")
+set(EMBEDDED_APP "uart_echo_app" CACHE STRING "Application under src/apps to build")
 set(EMBEDDED_TARGET_FILE "${CMAKE_SOURCE_DIR}/targets/${EMBEDDED_TARGET}/target.cmake")
 
 if(NOT EXISTS "${EMBEDDED_TARGET_FILE}")
@@ -45,7 +46,7 @@ set(CMAKE_ASM_FLAGS "${CMAKE_ASM_FLAGS} ${MCU_BASE_FLAGS}")
 
 if(MCU_FAMILY STREQUAL "stm32u5")
 	add_subdirectory("${CMAKE_SOURCE_DIR}/submodules/STM32_HAL" "${CMAKE_BINARY_DIR}/stm32_hal")
-	add_subdirectory("${CMAKE_SOURCE_DIR}/src/hal" "${CMAKE_BINARY_DIR}/hal")
+	add_subdirectory("${CMAKE_SOURCE_DIR}/src/platform" "${CMAKE_BINARY_DIR}/platform")
 endif()
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
@@ -61,27 +62,44 @@ if(MCU_LINKER_SCRIPT)
 endif()
 
 # ====== Project sources ======
-set(APP_SRCS
-	"${CMAKE_SOURCE_DIR}/src/apps/main.c"
+set(APP_DIR "${CMAKE_SOURCE_DIR}/src/apps/${EMBEDDED_APP}")
+set(APP_CMAKE_FILE "${APP_DIR}/app.cmake")
+
+if(NOT IS_DIRECTORY "${APP_DIR}")
+	message(FATAL_ERROR "Unknown embedded app '${EMBEDDED_APP}'. Expected ${APP_DIR}")
+endif()
+
+if(NOT EXISTS "${APP_CMAKE_FILE}")
+	message(FATAL_ERROR "Selected embedded app '${EMBEDDED_APP}' must provide ${APP_CMAKE_FILE}")
+endif()
+
+set(APP_SRCS)
+set(APP_INCLUDE_DIRS)
+set(APP_COMPILE_DEFINITIONS)
+set(APP_LIBS)
+
+include("${APP_CMAKE_FILE}")
+
+list(APPEND APP_SRCS
 	"${MCU_STARTUP_FILE}"
 	"${MCU_SYSTEM_FILE}"
 )
 
 if(NOT APP_SRCS)
-	message(WARNING "No source files found in ${CMAKE_SOURCE_DIR}/src. Add sources or set APP_SRCS.")
+	message(WARNING "No source files found for app '${EMBEDDED_APP}'. Add sources in ${APP_CMAKE_FILE}.")
 endif()
 
 # ====== Target ======
 add_executable(${PROJECT_NAME}.elf ${APP_SRCS})
 
-target_compile_definitions(${PROJECT_NAME}.elf PRIVATE ${MCU_DEFINES})
-target_include_directories(${PROJECT_NAME}.elf PRIVATE ${MCU_INCLUDE_DIRS})
+target_compile_definitions(${PROJECT_NAME}.elf PRIVATE ${MCU_DEFINES} ${APP_COMPILE_DEFINITIONS})
+target_include_directories(${PROJECT_NAME}.elf PRIVATE ${MCU_INCLUDE_DIRS} ${APP_INCLUDE_DIRS})
 target_link_options(${PROJECT_NAME}.elf PRIVATE ${LINKER_FLAGS})
 
 target_compile_definitions(${MCU_HAL_TARGET} PUBLIC ${MCU_DEFINES})
 target_include_directories(${MCU_HAL_TARGET} PUBLIC ${MCU_INCLUDE_DIRS})
 
-target_link_libraries(${PROJECT_NAME}.elf PRIVATE ${MCU_HAL_TARGET} hal_if_stm32u5 m)
+target_link_libraries(${PROJECT_NAME}.elf PRIVATE ${MCU_HAL_TARGET} platform_stm32u5 ${APP_LIBS} m)
 
 set_target_properties(${PROJECT_NAME}.elf PROPERTIES
 	OUTPUT_NAME ${PROJECT_NAME}
