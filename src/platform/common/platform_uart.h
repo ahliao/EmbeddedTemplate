@@ -102,6 +102,25 @@ platform_status_t platform_uart_transmit_async(platform_uart_t *uart, const uint
 platform_status_t platform_uart_receive_async(platform_uart_t *uart, uint8_t *data, size_t length);
 
 /**
+ * @brief Start an asynchronous receive that completes after RX silence.
+ *
+ * The receive buffer must remain valid until the RX complete callback fires or
+ * the transfer is aborted. Reception completes when either `length` bytes have
+ * been received or the backend detects `timeout_bits` bit times of RX silence.
+ * A zero-length receive succeeds without starting a transfer.
+ *
+ * @param uart Opaque backend UART handle.
+ * @param data Destination buffer. May be NULL only when length is zero.
+ * @param length Maximum number of bytes to receive.
+ * @param timeout_bits Receiver-timeout duration in UART bit times.
+ * @return PLATFORM_OK if the transfer was started, otherwise a status such as PLATFORM_BUSY.
+ */
+platform_status_t platform_uart_receive_until_timeout_async(platform_uart_t *uart,
+                                                            uint8_t *data,
+                                                            size_t length,
+                                                            uint32_t timeout_bits);
+
+/**
  * @brief Abort any active UART transfer supported by the backend.
  *
  * @param uart Opaque backend UART handle.

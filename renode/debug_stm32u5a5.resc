@@ -14,4 +14,3 @@ emulation CreateUartPtyTerminal "term" "/tmp/uart" true
 connector Connect sysbus.usart1 term
 
 machine StartGdbServer 3333
-echo "Renode GDB server ready on port 3333"

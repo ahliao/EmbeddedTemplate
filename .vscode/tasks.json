@@ -2,13 +2,13 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "CMake: build nucleo_u5a5",
+            "label": "CMake: build nucleo_u5a5_uart_echo_freertos_app",
             "type": "shell",
             "command": "cmake",
             "args": [
                 "--workflow",
                 "--preset",
-                "nucleo_u5a5"
+                "nucleo_u5a5_uart_echo_freertos_app"
             ],
             "group": "build",
             "problemMatcher": []
@@ -16,8 +16,9 @@
         {
             "label": "Renode: debug stm32u5a5",
             "type": "shell",
-            "command": "${workspaceFolder}/../renode/renode",
+            "command": "${workspaceFolder}/scripts/run_renode_debug.sh",
             "args": [
+                "${workspaceFolder}/../renode/renode",
                 "renode/debug_stm32u5a5.resc"
             ],
             "isBackground": true,
@@ -28,12 +29,12 @@
                 },
                 "background": {
                     "activeOnStart": true,
-                    "beginsPattern": ".*Loaded monitor commands.*",
-                    "endsPattern": ".*Renode GDB server ready on port 3333.*"
+                    "beginsPattern": "^RENODE_GDB_WAITING$",
+                    "endsPattern": "^RENODE_GDB_READY$"
                 }
             },
             "dependsOn": [
-                "CMake: build nucleo_u5a5"
+                "CMake: build nucleo_u5a5_uart_echo_freertos_app"
             ],
             "presentation": {
                 "reveal": "always",

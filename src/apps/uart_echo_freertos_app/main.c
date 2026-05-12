@@ -3,10 +3,12 @@
 #include "stm32u5xx_hal.h"
 #include "task.h"
 
+#define RX_BUFFER_SIZE 128U
+#define RX_TIMEOUT_BITS 30U
+
 static platform_uart_t *console_uart;
-static uint8_t rxByte;
-static volatile uint8_t rxDone = 0;
-static volatile uint8_t txDone = 0;
+static uint8_t rxBuffer[RX_BUFFER_SIZE];
+static size_t rxLength;
 static volatile uint8_t uartError = 0;
 static TaskHandle_t echoTaskHandle;
 
@@ -40,26 +42,19 @@ static void EchoTask(void *argument)
 
     InitConsoleUart();
 
-    const uint8_t banner[] = "\r\nFreeRTOS async console echo ready. Type characters and they will echo back.\r\n";
+    const uint8_t banner[] = "\r\nFreeRTOS RTO console echo ready. Input is echoed after a short RX idle gap.\r\n";
     if (platform_uart_transmit(console_uart, banner, sizeof(banner) - 1, PLATFORM_WAIT_FOREVER) != PLATFORM_OK) {
         Error_Handler();
     }
 
     StartReceiveAsync();
-    uint8_t test[] = "TEST";
     while (1) {
-        // platform_uart_transmit(console_uart, test, 4, PLATFORM_WAIT_FOREVER);
         ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
-        // ulTaskNotifyTake(pdTRUE, 1000);
 
-        platform_uart_transmit(console_uart, test, 4, PLATFORM_WAIT_FOREVER);
-        // vTaskDelay(1000);
+        if ((rxLength > 0U) && (platform_uart_transmit(console_uart, rxBuffer, rxLength, PLATFORM_WAIT_FOREVER) != PLATFORM_OK)) {
+            Error_Handler();
+        }
 
-        // if (platform_uart_transmit(console_uart, &rxByte, 1, PLATFORM_WAIT_FOREVER) != PLATFORM_OK) {
-        //     Error_Handler();
-        // }
-
-        // txDone++;
         StartReceiveAsync();
     }
 }
@@ -97,7 +92,8 @@ static void InitConsoleUart(void)
 
 static void StartReceiveAsync(void)
 {
-    if (platform_uart_receive_async(console_uart, &rxByte, 1) != PLATFORM_OK) {
+    rxLength = 0U;
+    if (platform_uart_receive_until_timeout_async(console_uart, rxBuffer, sizeof(rxBuffer), RX_TIMEOUT_BITS) != PLATFORM_OK) {
         Error_Handler();
     }
 }
@@ -106,8 +102,6 @@ static void OnConsoleTxComplete(platform_uart_t *uart, void *user_context)
 {
     (void)uart;
     (void)user_context;
-
-    txDone++;
 }
 
 static void OnConsoleRxComplete(platform_uart_t *uart, void *user_context, size_t bytes_received)
@@ -117,12 +111,11 @@ static void OnConsoleRxComplete(platform_uart_t *uart, void *user_context, size_
 
     BaseType_t higher_priority_task_woken = pdFALSE;
 
-    rxDone++;
-
-    if (bytes_received != 1U) {
+    if (bytes_received > sizeof(rxBuffer)) {
         Error_Handler();
     }
 
+    rxLength = bytes_received;
     vTaskNotifyGiveFromISR(echoTaskHandle, &higher_priority_task_woken);
     portYIELD_FROM_ISR(higher_priority_task_woken);
 }

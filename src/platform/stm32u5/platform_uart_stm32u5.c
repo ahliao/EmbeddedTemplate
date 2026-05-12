@@ -12,6 +12,7 @@ struct platform_uart {
     platform_uart_config_t config;
     platform_uart_callbacks_t callbacks;
     size_t rx_dma_length;
+    uint8_t rx_until_timeout_active;
     uint8_t initialized;
 };
 
@@ -67,6 +68,27 @@ static platform_uart_t *context_from_handle(UART_HandleTypeDef *handle)
     }
 
     return NULL;
+}
+
+static void complete_rx_until_timeout(platform_uart_t *uart)
+{
+    uint32_t remaining = __HAL_DMA_GET_COUNTER(&uart->rx_dma);
+    if (remaining > uart->rx_dma_length) {
+        remaining = 0U;
+    }
+
+    const size_t bytes_received = uart->rx_dma_length - remaining;
+
+    uart->rx_until_timeout_active = 0U;
+    __HAL_UART_DISABLE_IT(&uart->handle, UART_IT_RTO);
+    __HAL_UART_CLEAR_FLAG(&uart->handle, UART_CLEAR_RTOF);
+
+    (void)HAL_UART_AbortReceive(&uart->handle);
+    (void)HAL_UART_DisableReceiverTimeout(&uart->handle);
+
+    if (uart->callbacks.rx_complete != NULL) {
+        uart->callbacks.rx_complete(uart, uart->callbacks.user_context, bytes_received);
+    }
 }
 
 static platform_status_t init_console_dma(platform_uart_t *uart)
@@ -253,7 +275,44 @@ platform_status_t platform_uart_receive_async(platform_uart_t *uart, uint8_t *da
     }
 
     uart->rx_dma_length = length;
+    uart->rx_until_timeout_active = 0U;
+    (void)HAL_UART_DisableReceiverTimeout(&uart->handle);
+
     return map_hal_status(HAL_UART_Receive_DMA(&uart->handle, data, (uint16_t)length));
+}
+
+platform_status_t platform_uart_receive_until_timeout_async(platform_uart_t *uart,
+                                                            uint8_t *data,
+                                                            size_t length,
+                                                            uint32_t timeout_bits)
+{
+    if ((uart == NULL) || ((data == NULL) && (length > 0U)) || (length > UINT16_MAX) || (timeout_bits == 0U)) {
+        return PLATFORM_INVALID_ARG;
+    }
+
+    if (length == 0U) {
+        return PLATFORM_OK;
+    }
+
+    uart->rx_dma_length = length;
+    uart->rx_until_timeout_active = 1U;
+
+    HAL_UART_ReceiverTimeout_Config(&uart->handle, timeout_bits);
+
+    platform_status_t status = map_hal_status(HAL_UART_EnableReceiverTimeout(&uart->handle));
+    if (status != PLATFORM_OK) {
+        uart->rx_until_timeout_active = 0U;
+        return status;
+    }
+
+    status = map_hal_status(HAL_UART_Receive_DMA(&uart->handle, data, (uint16_t)length));
+    if (status != PLATFORM_OK) {
+        uart->rx_until_timeout_active = 0U;
+        __HAL_UART_DISABLE_IT(&uart->handle, UART_IT_RTO);
+        (void)HAL_UART_DisableReceiverTimeout(&uart->handle);
+    }
+
+    return status;
 }
 
 platform_status_t platform_uart_abort(platform_uart_t *uart)
@@ -321,6 +380,13 @@ void HAL_UART_MspInit(UART_HandleTypeDef *uart_handle)
 
 void USART1_IRQHandler(void)
 {
+    if ((console_uart.rx_until_timeout_active != 0U) &&
+        (__HAL_UART_GET_FLAG(&console_uart.handle, UART_FLAG_RTOF) == SET) &&
+        (__HAL_UART_GET_IT_SOURCE(&console_uart.handle, UART_IT_RTO) == SET)) {
+        complete_rx_until_timeout(&console_uart);
+        return;
+    }
+
     HAL_UART_IRQHandler(&console_uart.handle);
 }
 
@@ -347,8 +413,17 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *uart_handle)
 {
     platform_uart_t *uart = context_from_handle(uart_handle);
 
-    if ((uart != NULL) && (uart->callbacks.rx_complete != NULL)) {
-        uart->callbacks.rx_complete(uart, uart->callbacks.user_context, uart->rx_dma_length);
+    if (uart != NULL) {
+        if (uart->rx_until_timeout_active != 0U) {
+            uart->rx_until_timeout_active = 0U;
+            __HAL_UART_DISABLE_IT(&uart->handle, UART_IT_RTO);
+            __HAL_UART_CLEAR_FLAG(&uart->handle, UART_CLEAR_RTOF);
+            (void)HAL_UART_DisableReceiverTimeout(&uart->handle);
+        }
+
+        if (uart->callbacks.rx_complete != NULL) {
+            uart->callbacks.rx_complete(uart, uart->callbacks.user_context, uart->rx_dma_length);
+        }
     }
 }
 
