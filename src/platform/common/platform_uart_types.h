@@ -1,8 +1,9 @@
 #ifndef PLATFORM_UART_TYPES_H
 #define PLATFORM_UART_TYPES_H
 
+#include "platform_status.h"
+
 #include <stddef.h>
-#include <stdint.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -16,23 +17,6 @@ extern "C" {
  * It intentionally contains no STM32 handles, registers, IRQ names, or HAL/LL
  * types so UART users can be compiled against mocks.
  */
-
-/** @brief Use with blocking APIs when the caller wants to wait indefinitely. */
-#define PLATFORM_WAIT_FOREVER UINT32_MAX
-
-/** @brief Common status values returned by platform interface functions. */
-typedef enum {
-    /** Operation completed successfully. */
-    PLATFORM_OK = 0,
-    /** Operation failed for a peripheral-specific reason. */
-    PLATFORM_ERROR,
-    /** Peripheral or transfer engine is already busy. */
-    PLATFORM_BUSY,
-    /** Operation did not complete before the requested timeout. */
-    PLATFORM_TIMEOUT,
-    /** A required pointer, size, or configuration value was invalid. */
-    PLATFORM_INVALID_ARG
-} platform_status_t;
 
 /** @brief Logical UARTs exposed by the board support package. */
 typedef enum {

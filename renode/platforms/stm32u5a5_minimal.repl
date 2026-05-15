@@ -35,6 +35,10 @@ usart1: UART.STM32U5_USART @ sysbus 0x40013800
     ReceiveDmaRequest -> gpdma1@24
     TransmitDmaRequest -> gpdma1@25
 
+lptim1: Timers.STM32U5_LpTimer @ sysbus 0x46004400
+    frequency: 32000
+    -> nvic@67
+
 gpioPortA: GPIOPort.STM32_GPIOPort @ sysbus <0x42020000, +0x400>
     modeResetValue: 0xABFFFFFF
     outputSpeedResetValue: 0x0C000000
@@ -46,18 +50,9 @@ exti: IRQControllers.STM32WBA_EXTI @ sysbus 0x06040000
     numberOfOutputLines: 24
     [0-15] -> nvic@[11-26]
     
-rcc: Python.PythonPeripheral @ sysbus 0x40021000
-    size: 0x400
-    initable: true
-    script: '''
-if request.IsInit:
-    lastVal = 0
-else:
-    lastVal = 1 - lastVal
-    request.Value = lastVal * 0xFFFFFFFF
-    if request.Offset == 0x0:
-        request.Value = request.Value | (1 << 17)
-'''
+rcc: Miscellaneous.STM32U5_RCC @ sysbus 0x46020C00
+    nvic: nvic
+    lptim1: lptim1
 
 sysbus:
     init:

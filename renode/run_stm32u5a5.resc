@@ -8,7 +8,7 @@ logLevel -1 gpioPortA.pa0Led
 logLevel 3
 
 logLevel -1 sysbus.usart1
-logLevel -1 sysbus.gpdma1
+logLevel -1 sysbus.lptim1
 
 emulation CreateUartPtyTerminal "term" "/tmp/uart"
 

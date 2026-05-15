@@ -1,4 +1,5 @@
 add_library(platform_stm32u5 OBJECT
+    stm32u5/platform_lptim_stm32u5.c
     stm32u5/platform_uart_stm32u5.c
 )
 
